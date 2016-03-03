@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using FirstSolution.Domain;
 using NHibernate;
+using NHibernate.Criterion;
 
 namespace FirstSolution.Repositories
 {
@@ -19,7 +20,14 @@ namespace FirstSolution.Repositories
 
         public ICollection<Product> GetByCategory(string category)
         {
-            throw new NotImplementedException();
+            using (ISession session = NHibernateHelper.OpenSession())
+            {
+                var products = session
+                    .CreateCriteria(typeof(Product))
+                    .Add(Restrictions.Eq("Category", category))
+                    .List<Product>();
+                return products;
+            }
         }
 
         public Product GetById(Guid productId)
@@ -32,7 +40,14 @@ namespace FirstSolution.Repositories
 
         public Product GetByName(string name)
         {
-            throw new NotImplementedException();
+            using (ISession session = NHibernateHelper.OpenSession())
+            {
+                Product product = session
+                    .CreateCriteria(typeof(Product))
+                    .Add(Restrictions.Eq("Name", name))
+                    .UniqueResult<Product>();
+                return product;
+            }
         }
 
         public void Remove(Product product)

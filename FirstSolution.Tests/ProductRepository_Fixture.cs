@@ -4,7 +4,7 @@ using NHibernate;
 using NHibernate.Cfg;
 using NHibernate.Tool.hbm2ddl;
 using NUnit.Framework;
-
+using System.Collections.Generic;
 
 namespace FirstSolution.Tests
 {
@@ -109,7 +109,35 @@ namespace FirstSolution.Tests
             Assert.AreEqual(_products[1].Name, fromDb.Name);
         }
 
+        [Test]
+        public void Can_get_existing_product_by_name()
+        {
+            IProductRepository repository = new ProductRepository();
+            var fromDb = repository.GetByName(_products[1].Name);
 
+            Assert.IsNotNull(fromDb);
+            Assert.AreNotSame(_products[1], fromDb);
+            Assert.AreEqual(_products[1].Id, fromDb.Id);
+        }
+
+        [Test]
+        public void Can_get_existing_products_by_category()
+        {
+            IProductRepository repository = new ProductRepository();
+            var fromDb = repository.GetByCategory("Fruits");
+
+            Assert.AreEqual(2, fromDb.Count);
+            Assert.IsTrue(IsInCollection(_products[0], fromDb));
+            Assert.IsTrue(IsInCollection(_products[1], fromDb));
+        }
+
+        private bool IsInCollection(Product product, ICollection<Product> fromDb)
+        {
+            foreach (var item in fromDb)
+                if (product.Id == item.Id)
+                    return true;
+            return false;
+        }
     }
 
 }
